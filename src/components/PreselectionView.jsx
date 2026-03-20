@@ -56,14 +56,14 @@ export default function PreselectionView({ cards, setCards, onSaveToDb, onNaviga
     }
 
     return (
-        <div className="flex flex-col h-full gap-6">
-            <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between glass-panel p-4 md:p-6 rounded-2xl border border-indigo-500/20">
+        <div className="flex flex-col h-full gap-3 md:gap-6">
+            <div className="flex flex-col md:flex-row gap-3 md:gap-4 items-start md:items-center justify-between glass-panel p-3 md:p-6 rounded-2xl border border-indigo-500/20 shrink-0">
                 <div>
-                    <h2 className="text-xl font-bold flex items-center gap-2 text-indigo-300">
-                        <CheckSquare className="text-indigo-500" /> Preselekcja
-                        <span className="text-sm font-normal text-gray-400 bg-gray-900 px-2 py-0.5 rounded-full border border-gray-800">Czeka {cards.length} fiszek</span>
+                    <h2 className="text-lg md:text-xl font-bold flex items-center gap-2 text-indigo-300">
+                        <CheckSquare className="text-indigo-500 w-5 h-5 md:w-6 md:h-6" /> Preselekcja
+                        <span className="text-xs md:text-sm font-normal text-gray-400 bg-gray-900 px-2 py-0.5 rounded-full border border-gray-800">Czeka {cards.length} fiszek</span>
                     </h2>
-                    <p className="text-sm text-gray-400 mt-1">
+                    <p className="hidden md:block text-sm text-gray-400 mt-1">
                         Te fiszki zostały wygenerowane przez AI i czekają na potwierdzenie. Wybierz tylko te przydatne, aby nie zaśmiecać swojej bazy.
                     </p>
                 </div>
@@ -72,17 +72,17 @@ export default function PreselectionView({ cards, setCards, onSaveToDb, onNaviga
                     <button
                         onClick={handleSave}
                         disabled={selectedIndices.size === 0}
-                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-colors shadow-lg shadow-indigo-600/20 disabled:opacity-50 disabled:shadow-none"
+                        className="flex-1 md:flex-none flex items-center justify-center gap-1.5 md:gap-2 px-3 py-2 md:px-4 md:py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-colors shadow-lg shadow-indigo-600/20 disabled:opacity-50 disabled:shadow-none text-sm md:text-base"
                     >
                         <Save className="w-4 h-4" />
-                        <span>Zapisz Zaznaczone ({selectedIndices.size})</span>
+                        <span>Zapisz ({selectedIndices.size})</span>
                     </button>
                     <button
                         onClick={handleDiscard}
-                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 rounded-xl transition-colors font-medium"
+                        className="flex-1 md:flex-none flex items-center justify-center gap-1.5 md:gap-2 px-3 py-2 md:px-4 md:py-2 bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 rounded-xl transition-colors font-medium text-sm md:text-base"
                     >
                         <Trash2 className="w-4 h-4" />
-                        <span>Odrzuć wszystko</span>
+                        <span>Odrzuć</span>
                     </button>
                 </div>
             </div>
@@ -101,8 +101,8 @@ export default function PreselectionView({ cards, setCards, onSaveToDb, onNaviga
                             key={idx}
                             onClick={() => handleToggle(idx)}
                             className={`rounded-2xl p-5 flex flex-col gap-3 cursor-pointer border-2 transition-all ${isSelected
-                                    ? 'bg-indigo-600/10 border-indigo-500/50 shadow-lg shadow-indigo-500/5'
-                                    : 'bg-gray-900 border-gray-800 opacity-60 hover:opacity-100 hover:border-gray-700'
+                                ? 'bg-indigo-600/10 border-indigo-500/50 shadow-lg shadow-indigo-500/5'
+                                : 'bg-gray-900 border-gray-800 opacity-60 hover:opacity-100 hover:border-gray-700'
                                 }`}
                         >
                             <div className="flex justify-between items-start gap-4">
