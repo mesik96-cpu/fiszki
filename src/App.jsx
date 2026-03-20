@@ -9,7 +9,7 @@ import { checkAppwriteConnection } from './utils/diagnostics';
 function App() {
   const [activeTab, setActiveTab] = useState('browse');
   const [chatMessages, setChatMessages] = useState([
-    { role: 'model', content: "Cześć! Jestem Twoim nauczycielem języków w chmurze! Możesz ze mną po prostu porozmawiać, a ja wyłapię z naszej rozmowy słówka i użyję magii AI, by zapisać fiszki do bazy. Albo wklej z innej strony listę tekstową!" }
+    { role: 'model', content: "¡Hola! Jestem Twoim nauczycielem hiszpańskiego w chmurze! Możesz ze mną po prostu porozmawiać, a ja wyłapię z naszej rozmowy słówka i użyję magii AI, by zapisać fiszki do bazy." }
   ]);
 
   const {

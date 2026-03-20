@@ -36,7 +36,8 @@ export default function AiChatView({ onAddBatch, messages, setMessages }) {
 
             formattedHistory.push({ role: 'user', parts: [{ text: userMessage }] });
 
-            const replyText = await callGeminiApi(apiKey, "gemini-flash-lite-latest", formattedHistory);
+            const chatInstruction = "Jesteś ekspertem powołanym do nauki języka hiszpańskiego. Zawsze domyślnie tłumacz słowa podane przez użytkownika na język hiszpański (chyba że użytkownik wyraźnie poprosi o inny język). Poprawiaj błędy, ucz nowych słówek i zachęcaj do nauki po hiszpańsku.";
+            const replyText = await callGeminiApi(apiKey, "gemini-flash-lite-latest", formattedHistory, chatInstruction);
             setMessages(p => [...p, { role: 'model', content: replyText }]);
 
             // 2. Extraction in background
@@ -44,6 +45,7 @@ export default function AiChatView({ onAddBatch, messages, setMessages }) {
 Format (KAŻDA LINIA): KATEGORIA | SŁÓWKO | TŁUMACZENIE | PRZYKŁAD | TŁUMACZENIE PRZYKŁADU
 
 Zasady krytyczne:
+- JĘZYK DOMYŚLNY TO HISZPAŃSKI. Tłumacz zawsze na hiszpański, chyba że w rozmowie była mowa o innym.
 - PRZYKŁADY SĄ OBOWIĄZKOWE. Jeśli w tekście nie ma przykładu, WYMYŚL krótki, naturalny przykład w obu językach.
 - Zwróć tylko surowy tekst fiszek.
 - Jeśli brak słówek, zwróć: BRAK.`;
@@ -81,7 +83,7 @@ Zasady krytyczne:
     const handleClearChat = () => {
         if (confirm("Czy na pewno chcesz wyczyścić historię rozmowy?")) {
             setMessages([
-                { role: 'model', content: "Cześć! Historia wyczyszczona. W czym mogę Ci dzisiaj pomóc?" }
+                { role: 'model', content: "¡Hola! Historia wyczyszczona. Jakiego hiszpańskiego słówka uczymy się dzisiaj?" }
             ]);
             setStatus('');
         }
