@@ -5,7 +5,7 @@ import { parseChatVocabulary } from '../utils/parser';
 
 export default function AiChatView({ onAddBatch, messages, setMessages }) {
     const [input, setInput] = useState('');
-    const [apiKey, setApiKey] = useState(import.meta.env.VITE_GEMINI_API_KEY || '');
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState('');
 
@@ -106,93 +106,74 @@ Zasady krytyczne:
     };
 
     return (
-        <div className="flex flex-col lg:flex-row h-full gap-4 md:gap-6 min-h-0">
-            <div className="flex-[3] flex flex-col glass-panel rounded-2xl overflow-hidden border border-gray-800 min-h-0">
-                <div className="bg-gray-900/50 border-b border-gray-800 p-3 md:p-4 flex justify-between items-center shrink-0">
-                    <div>
-                        <h2 className="text-lg font-bold flex items-center gap-2">
-                            <span className="text-indigo-400"><Wand2 size={20} /></span> AI Mój Skryba
-                        </h2>
-                        <p className="text-sm text-gray-500">Historia jest zapisywana nawet gdy zmieniasz zakładki.</p>
-                    </div>
+        <div className="flex flex-col h-full w-full max-w-4xl mx-auto glass-panel rounded-2xl overflow-hidden border border-gray-800 min-h-0">
+            <div className="bg-gray-900/50 border-b border-gray-800 p-3 md:p-4 flex justify-between items-center shrink-0">
+                <div>
+                    <h2 className="text-base md:text-lg font-bold flex items-center gap-2">
+                        <span className="text-indigo-400"><Wand2 size={20} /></span> AI Mój Skryba
+                    </h2>
+                    <p className="hidden md:block text-sm text-gray-500">Historia jest zapisywana nawet gdy zmieniasz zakładki.</p>
+                </div>
+                <div className="flex items-center gap-1 md:gap-2 bg-gray-950/80 p-1 md:p-1.5 rounded-lg border border-gray-800/80">
+                    <button
+                        onClick={handlePasteRawText}
+                        className="px-2 py-1 md:px-3 text-xs md:text-sm text-indigo-400 hover:text-white hover:bg-indigo-500/20 rounded-md flex items-center gap-1.5 transition-colors"
+                        title="Zapisz gotowy tekst od razu do bazy jako fiszki"
+                    >
+                        <UploadCloud size={16} /> <span className="hidden sm:inline">Szybki Import</span>
+                    </button>
+                    <div className="w-[1px] h-4 bg-gray-800"></div>
                     <button
                         onClick={handleClearChat}
-                        className="p-2 text-gray-500 hover:text-red-400 transition-colors"
+                        className="p-1.5 md:p-2 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-md transition-colors"
                         title="Wyczyść historię"
                     >
-                        <Trash2 size={18} />
+                        <Trash2 size={16} />
                     </button>
-                </div>
-
-                <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4" ref={scrollRef}>
-                    {messages.map((m, i) => (
-                        <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`max-w-[85%] rounded-2xl p-4 ${m.role === 'user'
-                                ? 'bg-indigo-600 text-white rounded-br-sm'
-                                : 'bg-gray-800 text-gray-200 border border-gray-700/50 rounded-bl-sm'
-                                }`}>
-                                <div className="text-xs opacity-50 mb-1">{m.role === 'user' ? 'Ty' : 'Gemini AI'}</div>
-                                <div className="whitespace-pre-wrap">{m.content}</div>
-                            </div>
-                        </div>
-                    ))}
-                    {loading && (
-                        <div className="flex justify-start">
-                            <div className="bg-gray-800/50 text-gray-400 p-4 rounded-2xl rounded-bl-sm flex items-center gap-2">
-                                <Loader2 className="w-4 h-4 animate-spin text-indigo-500" /> AI pisze...
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                <div className="p-3 md:p-4 bg-gray-900/50 border-t border-gray-800 flex flex-col gap-2 shrink-0">
-                    {status && (
-                        <div className="text-xs text-indigo-400 font-medium px-2 py-1 bg-indigo-500/10 rounded-lg flex items-center gap-2 border border-indigo-500/20">
-                            <DatabaseZap size={12} /> {status}
-                        </div>
-                    )}
-                    <div className="flex gap-2">
-                        <textarea
-                            value={input}
-                            onChange={e => setInput(e.target.value)}
-                            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-                            placeholder="Znasz jakieś słówka o morzu?"
-                            className="flex-1 bg-gray-950 border border-gray-800 rounded-xl p-3 resize-none focus:outline-none focus:border-indigo-500 transition-colors h-14"
-                        />
-                        <button
-                            onClick={handleSend}
-                            disabled={loading}
-                            className="px-6 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-colors disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-indigo-600/20"
-                        >
-                            <Send className="w-5 h-5" />
-                        </button>
-                    </div>
                 </div>
             </div>
 
-            <div className="flex-1 flex flex-col gap-4 md:gap-6 shrink-0 lg:shrink">
-                <div className="glass-panel p-4 md:p-5 rounded-2xl border border-gray-800 flex flex-col gap-3">
-                    <h3 className="font-bold flex items-center gap-2 text-gray-300">
-                        Klucz Gemini API
-                    </h3>
-                    <input
-                        type="password"
-                        value={apiKey}
-                        onChange={e => setApiKey(e.target.value)}
-                        placeholder="AIzaSy..."
-                        className="w-full bg-gray-950 border border-gray-800 rounded-lg p-2.5 text-sm focus:outline-none focus:border-indigo-500"
-                    />
-                </div>
+            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4" ref={scrollRef}>
+                {messages.map((m, i) => (
+                    <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`max-w-[85%] rounded-2xl p-4 ${m.role === 'user'
+                            ? 'bg-indigo-600 text-white rounded-br-sm'
+                            : 'bg-gray-800 text-gray-200 border border-gray-700/50 rounded-bl-sm'
+                            }`}>
+                            <div className="text-xs opacity-50 mb-1">{m.role === 'user' ? 'Ty' : 'Gemini AI'}</div>
+                            <div className="whitespace-pre-wrap">{m.content}</div>
+                        </div>
+                    </div>
+                ))}
+                {loading && (
+                    <div className="flex justify-start">
+                        <div className="bg-gray-800/50 text-gray-400 p-4 rounded-2xl rounded-bl-sm flex items-center gap-2">
+                            <Loader2 className="w-4 h-4 animate-spin text-indigo-500" /> AI pisze...
+                        </div>
+                    </div>
+                )}
+            </div>
 
-                <div className="glass-panel p-5 rounded-xl border border-gray-800 flex flex-col gap-3">
-                    <h3 className="font-bold flex items-center gap-2 text-gray-300">
-                        Szybki Import
-                    </h3>
+            <div className="p-3 md:p-4 bg-gray-900/50 border-t border-gray-800 flex flex-col gap-2 shrink-0">
+                {status && (
+                    <div className="text-xs text-indigo-400 font-medium px-2 py-1 bg-indigo-500/10 rounded-lg flex items-center gap-2 border border-indigo-500/20">
+                        <DatabaseZap size={12} /> {status}
+                    </div>
+                )}
+                <div className="flex gap-2">
+                    <textarea
+                        value={input}
+                        onChange={e => setInput(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+                        placeholder="Znasz jakieś słówka o morzu?"
+                        className="flex-1 bg-gray-950 border border-gray-800 rounded-xl p-3 resize-none focus:outline-none focus:border-indigo-500 transition-colors h-14"
+                    />
                     <button
-                        onClick={handlePasteRawText}
-                        className="w-full py-2.5 bg-gray-800 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors border border-gray-700 flex items-center justify-center gap-2"
+                        onClick={handleSend}
+                        disabled={loading}
+                        className="px-6 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-colors disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-indigo-600/20"
                     >
-                        <UploadCloud className="w-4 h-4" /> Zapisz tekst
+                        <Send className="w-5 h-5" />
                     </button>
                 </div>
             </div>

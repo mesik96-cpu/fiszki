@@ -25,14 +25,27 @@ function App() {
   return (
     <div className="flex flex-col h-[100dvh] bg-gray-950 text-gray-100 md:flex-row overflow-hidden">
       {/* Sidebar Navigation */}
-      <aside className="w-full md:w-64 shrink-0 bg-gray-900 border-b md:border-b-0 md:border-r border-gray-800 p-3 md:p-4 flex flex-col gap-3 md:gap-4 z-10">
-        <div className="flex items-center gap-3 mb-4 md:mb-8 px-2">
-          <div className="p-2 bg-indigo-500 rounded-xl shadow-lg shadow-indigo-500/20">
-            <Layers className="text-white w-6 h-6" />
+      <aside className="w-full md:w-64 shrink-0 bg-gray-900 border-b md:border-b-0 md:border-r border-gray-800 p-3 flex flex-col gap-2 md:gap-4 z-10">
+        <div className="flex items-center justify-between mb-2 md:mb-6 px-1 md:px-2">
+          <div className="flex items-center gap-2 md:gap-3">
+            <div className="p-1.5 md:p-2 bg-indigo-500 rounded-xl shadow-lg shadow-indigo-500/20">
+              <Layers className="text-white w-5 h-5 md:w-6 md:h-6" />
+            </div>
+            <h1 className="text-lg md:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400">
+              Fiszki AI
+            </h1>
           </div>
-          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400">
-            Fiszki AI
-          </h1>
+          <button
+            onClick={async () => {
+              const result = await checkAppwriteConnection();
+              if (result.success) alert(result.message);
+              else alert(`❌ Błąd: ${result.error || result.message}. Sprawdź instrukcje w oknie czatu.`);
+            }}
+            className="p-1.5 md:p-2 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors border border-transparent"
+            title="Status & Diagnostyka"
+          >
+            <Activity size={18} />
+          </button>
         </div>
 
         <nav className="flex md:flex-col gap-2 overflow-x-auto pb-2 md:pb-0">
@@ -56,22 +69,7 @@ function App() {
           />
         </nav>
 
-        <div className="mt-auto pt-4 border-t border-gray-800 flex flex-col gap-2">
-          <button
-            onClick={async () => {
-              const result = await checkAppwriteConnection();
-              if (result.success) alert(result.message);
-              else alert(`❌ Błąd: ${result.error || result.message}. Sprawdź instrukcje w oknie czatu.`);
-            }}
-            className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-red-400 hover:bg-red-500/10 rounded-lg transition-colors border border-transparent hover:border-red-500/20"
-          >
-            <Activity size={14} />
-            Status & Diagnostyka
-          </button>
-          <div className="hidden md:block text-[10px] text-gray-500 px-2 leading-tight">
-            Synchronizacja z chmurą aktywna.
-          </div>
-        </div>
+
       </aside>
 
       {/* Main Content Area */}
@@ -109,7 +107,7 @@ function NavButton({ icon, label, isActive, onClick }) {
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 font-medium whitespace-nowrap
+      className={`flex items-center gap-2 px-3 py-2 md:gap-3 md:px-4 md:py-3 rounded-xl transition-all duration-300 font-medium whitespace-nowrap text-sm md:text-base
         ${isActive
           ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shadow-lg shadow-indigo-500/5'
           : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200 border border-transparent'
