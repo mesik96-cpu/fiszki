@@ -60,10 +60,10 @@ export default function StudyView({ flashcards }) {
     const backExample = reverseMode ? card.example : card.example_pl;
 
     return (
-        <div className="flex flex-col h-full max-w-2xl mx-auto py-8">
+        <div className="flex-1 flex flex-col w-full h-full min-h-0 max-w-2xl mx-auto py-2 md:py-6">
 
             {/* Controls Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-8 glass-panel p-4 rounded-2xl">
+            <div className="flex flex-wrap items-center justify-between gap-3 md:gap-4 mb-4 md:mb-8 glass-panel p-3 md:p-4 rounded-2xl shrink-0">
                 <select
                     value={selectedCategory}
                     onChange={(e) => { setSelectedCategory(e.target.value); setCurrentIndex(0); setIsFlipped(false); }}
@@ -100,7 +100,7 @@ export default function StudyView({ flashcards }) {
             </p>
 
             {/* The Flashcard */}
-            <div className="perspective-1000 w-full aspect-[4/5] sm:aspect-[4/3] max-h-[340px] md:max-h-[400px] mb-8 relative group cursor-pointer touch-manipulation" onClick={() => setIsFlipped(!isFlipped)}>
+            <div className="perspective-1000 w-full aspect-[4/3] max-h-[400px] mb-8 relative group cursor-pointer" onClick={() => setIsFlipped(!isFlipped)}>
                 <div className={`w-full h-full duration-500 preserve-3d relative ${isFlipped ? 'rotate-y-180' : ''}`}>
 
                     {/* Front */}
@@ -130,15 +130,15 @@ export default function StudyView({ flashcards }) {
             </div>
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between md:justify-center gap-2 md:gap-4 touch-manipulation">
-                <button onClick={handlePrev} className="p-3 md:p-4 bg-gray-900 border border-gray-800 rounded-2xl hover:bg-gray-800 active:scale-95 md:hover:scale-105 transition-all w-16 md:w-32 flex items-center justify-center gap-2 group">
+            <div className="flex justify-center gap-3 md:gap-4 mt-auto pt-2 shrink-0">
+                <button onClick={handlePrev} className="p-3 md:p-4 bg-gray-900 border border-gray-800 rounded-2xl hover:bg-gray-800 hover:scale-105 transition-all w-24 md:w-32 flex items-center justify-center gap-2 group">
                     <ArrowLeft className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
                 </button>
-                <button onClick={() => setIsFlipped(!isFlipped)} className="flex-1 max-w-[200px] py-3 md:py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl shadow-lg shadow-indigo-500/20 active:scale-95 md:hover:scale-105 transition-all flex justify-center items-center gap-2 text-sm md:text-base">
-                    <RefreshCcw className="w-5 h-5 md:w-5 md:h-5" />
-                    {isFlipped ? "Ukryj" : "Odwróć"}
+                <button onClick={() => setIsFlipped(!isFlipped)} className="flex-1 max-w-[200px] py-3 md:py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl shadow-lg shadow-indigo-500/20 hover:scale-105 transition-all flex justify-center items-center gap-2 text-sm md:text-base">
+                    <RefreshCcw className="w-5 h-5" />
+                    {isFlipped ? "Ukryj" : "Pokaż"}
                 </button>
-                <button onClick={handleNext} className="p-3 md:p-4 bg-gray-900 border border-gray-800 rounded-2xl hover:bg-gray-800 active:scale-95 md:hover:scale-105 transition-all w-16 md:w-32 flex items-center justify-center gap-2 group">
+                <button onClick={handleNext} className="p-3 md:p-4 bg-gray-900 border border-gray-800 rounded-2xl hover:bg-gray-800 hover:scale-105 transition-all w-24 md:w-32 flex items-center justify-center gap-2 group">
                     <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
                 </button>
             </div>

@@ -106,9 +106,9 @@ Zasady krytyczne:
     };
 
     return (
-        <div className="flex flex-col lg:flex-row h-full gap-4 md:gap-6 pb-2 md:pb-0">
-            <div className="flex-[3] flex flex-col glass-panel rounded-2xl overflow-hidden border border-gray-800">
-                <div className="bg-gray-900/50 border-b border-gray-800 p-4 flex justify-between items-center">
+        <div className="flex flex-col lg:flex-row h-full gap-4 md:gap-6 min-h-0">
+            <div className="flex-[3] flex flex-col glass-panel rounded-2xl overflow-hidden border border-gray-800 min-h-0">
+                <div className="bg-gray-900/50 border-b border-gray-800 p-3 md:p-4 flex justify-between items-center shrink-0">
                     <div>
                         <h2 className="text-lg font-bold flex items-center gap-2">
                             <span className="text-indigo-400"><Wand2 size={20} /></span> AI Mój Skryba
@@ -145,7 +145,7 @@ Zasady krytyczne:
                     )}
                 </div>
 
-                <div className="p-4 bg-gray-900/50 border-t border-gray-800 flex flex-col gap-2">
+                <div className="p-3 md:p-4 bg-gray-900/50 border-t border-gray-800 flex flex-col gap-2 shrink-0">
                     {status && (
                         <div className="text-xs text-indigo-400 font-medium px-2 py-1 bg-indigo-500/10 rounded-lg flex items-center gap-2 border border-indigo-500/20">
                             <DatabaseZap size={12} /> {status}
@@ -170,8 +170,8 @@ Zasady krytyczne:
                 </div>
             </div>
 
-            <div className="flex-1 flex flex-col gap-6">
-                <div className="glass-panel p-5 rounded-2xl border border-gray-800 flex flex-col gap-3">
+            <div className="flex-1 flex flex-col gap-4 md:gap-6 shrink-0 lg:shrink">
+                <div className="glass-panel p-4 md:p-5 rounded-2xl border border-gray-800 flex flex-col gap-3">
                     <h3 className="font-bold flex items-center gap-2 text-gray-300">
                         Klucz Gemini API
                     </h3>
