@@ -106,7 +106,7 @@ Zasady krytyczne:
     };
 
     return (
-        <div className="flex flex-col lg:flex-row h-[calc(100vh-8rem)] gap-6">
+        <div className="flex flex-col lg:flex-row h-full gap-4 md:gap-6 pb-2 md:pb-0">
             <div className="flex-[3] flex flex-col glass-panel rounded-2xl overflow-hidden border border-gray-800">
                 <div className="bg-gray-900/50 border-b border-gray-800 p-4 flex justify-between items-center">
                     <div>

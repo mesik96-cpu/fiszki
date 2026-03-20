@@ -65,9 +65,9 @@ export default function BrowseView({ flashcards, loading, onDelete, onUpdate, on
                 {currentCards.map(card => (
                     <div key={card.id || card.word} className="glass-panel rounded-2xl p-5 flex flex-col gap-3 group">
                         <div className="flex justify-between items-start gap-4">
-                            <div className="flex-1">
-                                <h3 className="font-bold text-lg text-indigo-300">{card.word}</h3>
-                                <p className="text-gray-200">{card.translation}</p>
+                            <div className="flex-1 min-w-0">
+                                <h3 className="font-bold text-lg text-indigo-300 break-words">{card.word}</h3>
+                                <p className="text-gray-200 break-words">{card.translation}</p>
                             </div>
                             <button onClick={() => onDelete(card.id)} className="text-gray-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <Trash2 className="w-4 h-4" />
