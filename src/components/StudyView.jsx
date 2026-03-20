@@ -8,6 +8,31 @@ export default function StudyView({ flashcards }) {
     const [reverseMode, setReverseMode] = useState(true); // true: pl->es, false: es->pl
     const [selectedCategory, setSelectedCategory] = useState("Wszystkie");
 
+    // SWIPE LOGIC
+    const [touchStart, setTouchStart] = useState(null);
+    const [touchEnd, setTouchEnd] = useState(null);
+    const minSwipeDistance = 50;
+
+    const onTouchStart = (e) => {
+        setTouchEnd(null);
+        setTouchStart(e.targetTouches[0].clientX);
+    };
+
+    const onTouchMove = (e) => setTouchEnd(e.targetTouches[0].clientX);
+
+    const onTouchEnd = () => {
+        if (!touchStart || !touchEnd) return;
+        const distance = touchStart - touchEnd;
+        const isLeftSwipe = distance > minSwipeDistance;
+        const isRightSwipe = distance < -minSwipeDistance;
+
+        if (isLeftSwipe) {
+            handleNext();
+        } else if (isRightSwipe) {
+            handlePrev();
+        }
+    };
+
     const categories = useMemo(() => {
         const cats = new Set(flashcards.map(c => c.category || "Bez kategorii"));
         // Filter out items that are marked as headers/categories, just in case
@@ -100,7 +125,13 @@ export default function StudyView({ flashcards }) {
             </p>
 
             {/* The Flashcard */}
-            <div className="perspective-1000 w-full aspect-[4/3] max-h-[400px] mb-8 relative group cursor-pointer" onClick={() => setIsFlipped(!isFlipped)}>
+            <div
+                className="perspective-1000 w-full aspect-[4/3] max-h-[400px] mb-8 relative group cursor-pointer"
+                onClick={() => setIsFlipped(!isFlipped)}
+                onTouchStart={onTouchStart}
+                onTouchMove={onTouchMove}
+                onTouchEnd={onTouchEnd}
+            >
                 <div className={`w-full h-full duration-500 preserve-3d relative ${isFlipped ? 'rotate-y-180' : ''}`}>
 
                     {/* Front */}
