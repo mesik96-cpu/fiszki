@@ -88,45 +88,47 @@ export default function StudyView({ flashcards }) {
         <div className="flex-1 flex flex-col w-full h-full min-h-0 max-w-2xl mx-auto py-2 md:py-6">
 
             {/* Controls Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-3 md:gap-4 mb-4 md:mb-8 glass-panel p-3 md:p-4 rounded-2xl shrink-0">
+            <div className="flex items-center justify-between gap-2 mb-2 md:mb-6 glass-panel p-2 md:p-4 rounded-xl md:rounded-2xl shrink-0">
                 <select
                     value={selectedCategory}
                     onChange={(e) => { setSelectedCategory(e.target.value); setCurrentIndex(0); setIsFlipped(false); }}
-                    className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500"
+                    className="bg-gray-900 border border-gray-700 rounded-lg px-2 py-1.5 md:px-3 md:py-2 text-xs md:text-sm focus:outline-none focus:border-indigo-500 max-w-[110px] sm:max-w-[140px] md:max-w-xs truncate"
                 >
                     {categories.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
 
-                <div className="flex items-center gap-6">
-                    <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white transition-colors">
+                <div className="flex items-center gap-3 md:gap-6">
+                    <label className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm text-gray-300 cursor-pointer hover:text-white transition-colors">
                         <input
                             type="checkbox"
                             checked={reverseMode}
                             onChange={(e) => { setReverseMode(e.target.checked); setIsFlipped(false); }}
-                            className="rounded border-gray-600 text-indigo-500 focus:ring-indigo-500 bg-gray-800"
+                            className="rounded border-gray-600 text-indigo-500 focus:ring-indigo-500 bg-gray-800 w-3.5 h-3.5 md:w-4 md:h-4"
                         />
-                        Odwrocie (Pol → Obce)
+                        <span className="hidden sm:inline">Odwrocie (Pol → Obce)</span>
+                        <span className="sm:hidden">PL→ES</span>
                     </label>
-                    <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white transition-colors">
+                    <label className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm text-gray-300 cursor-pointer hover:text-white transition-colors">
                         <input
                             type="checkbox"
                             checked={shuffleMode}
                             onChange={(e) => { setShuffleMode(e.target.checked); setCurrentIndex(0); setIsFlipped(false); }}
-                            className="rounded border-gray-600 text-indigo-500 focus:ring-indigo-500 bg-gray-800"
+                            className="rounded border-gray-600 text-indigo-500 focus:ring-indigo-500 bg-gray-800 w-3.5 h-3.5 md:w-4 md:h-4"
                         />
-                        Tasuj fiszki
+                        <span className="hidden sm:inline">Tasuj fiszki</span>
+                        <span className="sm:hidden">Tasuj</span>
                     </label>
                 </div>
             </div>
 
             {/* Progress */}
-            <p className="text-center text-sm font-medium text-gray-500 tracking-widest mb-4">
+            <p className="text-center text-sm font-medium text-gray-500 tracking-widest mb-2 md:mb-4">
                 FISZKA {(currentIndex % studyList.length) + 1} Z {studyList.length}
             </p>
 
             {/* The Flashcard */}
             <div
-                className="perspective-1000 w-full aspect-[4/3] max-h-[400px] mb-8 relative group cursor-pointer"
+                className="perspective-1000 flex-1 w-full relative group cursor-pointer min-h-0"
                 onClick={() => setIsFlipped(!isFlipped)}
                 onTouchStart={onTouchStart}
                 onTouchMove={onTouchMove}
@@ -135,38 +137,42 @@ export default function StudyView({ flashcards }) {
                 <div className={`w-full h-full duration-500 preserve-3d relative ${isFlipped ? 'rotate-y-180' : ''}`}>
 
                     {/* Front */}
-                    <div className="absolute w-full h-full backface-hidden glass-panel rounded-3xl flex flex-col items-center justify-center p-8 text-center border-indigo-500/20 shadow-indigo-500/10 shadow-2xl">
-                        <h2 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-white to-gray-400 mb-6 leading-tight">
-                            {frontWord}
-                        </h2>
-                        {frontExample && (
-                            <p className="text-lg md:text-xl text-indigo-300/80 italic">"{frontExample}"</p>
-                        )}
+                    <div className="absolute w-full h-full backface-hidden glass-panel rounded-3xl flex flex-col items-center justify-center p-4 md:p-8 text-center border-indigo-500/20 shadow-indigo-500/10 shadow-2xl overflow-y-auto">
+                        <div className="my-auto w-full">
+                            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-white to-gray-400 mb-4 md:mb-6 leading-tight break-words px-2 sm:px-4 max-w-full text-balance">
+                                {frontWord}
+                            </h2>
+                            {frontExample && (
+                                <p className="text-base sm:text-lg md:text-xl text-indigo-300/80 italic break-words px-2 sm:px-4 max-w-full text-balance">"{frontExample}"</p>
+                            )}
+                        </div>
                     </div>
 
                     {/* Back */}
-                    <div className="absolute w-full h-full backface-hidden rotate-y-180 rounded-3xl bg-indigo-600/20 backdrop-blur-md border border-indigo-500/30 flex flex-col items-center justify-center p-8 text-center shadow-indigo-500/20 shadow-2xl">
-                        <h2 className="text-3xl md:text-4xl font-bold text-white mb-6 leading-tight">
-                            {backWord}
-                        </h2>
-                        {backExample && (
-                            <p className="text-lg md:text-xl text-indigo-200 italic">"{backExample}"</p>
-                        )}
+                    <div className="absolute w-full h-full backface-hidden rotate-y-180 rounded-3xl bg-indigo-600/20 backdrop-blur-md border border-indigo-500/30 flex flex-col items-center justify-center p-4 md:p-8 text-center shadow-indigo-500/20 shadow-2xl overflow-y-auto">
+                        <div className="my-auto w-full">
+                            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 md:mb-6 leading-tight break-words px-2 sm:px-4 max-w-full text-balance">
+                                {backWord}
+                            </h2>
+                            {backExample && (
+                                <p className="text-base sm:text-lg md:text-xl text-indigo-200 italic break-words px-2 sm:px-4 max-w-full text-balance">"{backExample}"</p>
+                            )}
+                        </div>
                     </div>
 
                 </div>
             </div>
 
             {/* Navigation Buttons */}
-            <div className="flex justify-center gap-3 md:gap-4 mt-auto pt-2 shrink-0">
-                <button onClick={handlePrev} className="p-3 md:p-4 bg-gray-900 border border-gray-800 rounded-2xl hover:bg-gray-800 hover:scale-105 transition-all w-24 md:w-32 flex items-center justify-center gap-2 group">
+            <div className="hidden md:flex justify-center gap-4 mt-auto pt-4 shrink-0">
+                <button onClick={handlePrev} className="p-4 bg-gray-900 border border-gray-800 rounded-2xl hover:bg-gray-800 hover:scale-105 transition-all w-32 flex items-center justify-center gap-2 group">
                     <ArrowLeft className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
                 </button>
-                <button onClick={() => setIsFlipped(!isFlipped)} className="flex-1 max-w-[200px] py-3 md:py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl shadow-lg shadow-indigo-500/20 hover:scale-105 transition-all flex justify-center items-center gap-2 text-sm md:text-base">
+                <button onClick={() => setIsFlipped(!isFlipped)} className="flex-1 max-w-[200px] py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl shadow-lg shadow-indigo-500/20 hover:scale-105 transition-all flex justify-center items-center gap-2 text-base">
                     <RefreshCcw className="w-5 h-5" />
                     {isFlipped ? "Ukryj" : "Pokaż"}
                 </button>
-                <button onClick={handleNext} className="p-3 md:p-4 bg-gray-900 border border-gray-800 rounded-2xl hover:bg-gray-800 hover:scale-105 transition-all w-24 md:w-32 flex items-center justify-center gap-2 group">
+                <button onClick={handleNext} className="p-4 bg-gray-900 border border-gray-800 rounded-2xl hover:bg-gray-800 hover:scale-105 transition-all w-32 flex items-center justify-center gap-2 group">
                     <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
                 </button>
             </div>
