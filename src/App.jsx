@@ -1,13 +1,15 @@
 import { useState } from 'react';
-import { BookOpen, Layers, MessageSquare, Database, Activity } from 'lucide-react';
+import { BookOpen, Layers, MessageSquare, Database, Activity, CheckSquare } from 'lucide-react';
 import BrowseView from './components/BrowseView';
 import StudyView from './components/StudyView';
 import AiChatView from './components/AiChatView';
+import PreselectionView from './components/PreselectionView';
 import { useFlashcards } from './hooks/useFlashcards';
 import { checkAppwriteConnection } from './utils/diagnostics';
 
 function App() {
   const [activeTab, setActiveTab] = useState('browse');
+  const [preselectionCards, setPreselectionCards] = useState([]);
   const [chatMessages, setChatMessages] = useState([
     { role: 'model', content: "¡Hola! Jestem Twoim nauczycielem hiszpańskiego w chmurze! Możesz ze mną po prostu porozmawiać, a ja wyłapię z naszej rozmowy słówka i użyję magii AI, by zapisać fiszki do bazy." }
   ]);
@@ -62,6 +64,13 @@ function App() {
             onClick={() => setActiveTab('study')}
           />
           <NavButton
+            icon={<CheckSquare size={20} />}
+            label="Preselekcja"
+            isActive={activeTab === 'preselection'}
+            onClick={() => setActiveTab('preselection')}
+            newBadge={preselectionCards.length > 0 ? preselectionCards.length : null}
+          />
+          <NavButton
             icon={<MessageSquare size={20} />}
             label="Import & Czat AI"
             isActive={activeTab === 'ai'}
@@ -91,9 +100,20 @@ function App() {
           />
         )}
         {activeTab === 'study' && <StudyView flashcards={flashcards} />}
+        {activeTab === 'preselection' && (
+          <PreselectionView
+            cards={preselectionCards}
+            setCards={setPreselectionCards}
+            onSaveToDb={addMultipleFlashcards}
+            onNavigateTarget={(tab) => setActiveTab(tab)}
+          />
+        )}
         {activeTab === 'ai' && (
           <AiChatView
-            onAddBatch={addMultipleFlashcards}
+            onExtractSuccess={(parsed) => {
+              setPreselectionCards(parsed);
+              setActiveTab('preselection');
+            }}
             messages={chatMessages}
             setMessages={setChatMessages}
           />
@@ -103,7 +123,7 @@ function App() {
   );
 }
 
-function NavButton({ icon, label, isActive, onClick }) {
+function NavButton({ icon, label, isActive, onClick, newBadge }) {
   return (
     <button
       onClick={onClick}
@@ -115,7 +135,10 @@ function NavButton({ icon, label, isActive, onClick }) {
     >
       {icon}
       <span>{label}</span>
-      {isActive && (
+      {newBadge && (
+        <span className="ml-1 bg-indigo-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{newBadge}</span>
+      )}
+      {isActive && !newBadge && (
         <div className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-400" />
       )}
     </button>

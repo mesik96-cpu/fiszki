@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Trash2, Edit2, Plus, AlertTriangle, Loader2 } from 'lucide-react';
+import { Search, Trash2, Edit2, Plus, AlertTriangle, Loader2, Download } from 'lucide-react';
 
 
 export default function BrowseView({ flashcards, loading, onDelete, onUpdate, onDeleteAll }) {
@@ -49,6 +49,22 @@ export default function BrowseView({ flashcards, loading, onDelete, onUpdate, on
                     </div>
                     <button
                         onClick={() => {
+                            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(flashcards, null, 2));
+                            const downloadAnchorNode = document.createElement('a');
+                            downloadAnchorNode.setAttribute("href", dataStr);
+                            downloadAnchorNode.setAttribute("download", "fiszki_backup_" + new Date().toISOString().split('T')[0] + ".json");
+                            document.body.appendChild(downloadAnchorNode);
+                            downloadAnchorNode.click();
+                            downloadAnchorNode.remove();
+                        }}
+                        className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 border border-indigo-500/20 rounded-xl transition-colors"
+                        title="Pobierz kopię bazy (JSON)"
+                    >
+                        <Download className="w-4 h-4" />
+                        <span className="hidden sm:inline">Backup</span>
+                    </button>
+                    <button
+                        onClick={() => {
                             if (window.confirm("CZY NA PEWNO chcesz trwale usunąć WSZYSTKIE fiszki z chmury?")) {
                                 onDeleteAll();
                             }
@@ -69,8 +85,8 @@ export default function BrowseView({ flashcards, loading, onDelete, onUpdate, on
                                 <h3 className="font-bold text-lg text-indigo-300">{card.word}</h3>
                                 <p className="text-gray-200">{card.translation}</p>
                             </div>
-                            <button onClick={() => onDelete(card.id)} className="text-gray-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Trash2 className="w-4 h-4" />
+                            <button onClick={() => onDelete(card.id)} className="text-gray-500 hover:text-red-400 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Trash2 className="w-5 h-5 md:w-4 md:h-4" />
                             </button>
                         </div>
                         {(card.example || card.example_pl) && (

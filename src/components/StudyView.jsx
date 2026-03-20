@@ -4,8 +4,8 @@ import { ArrowLeft, ArrowRight, RefreshCcw, Eye, Settings2 } from 'lucide-react'
 export default function StudyView({ flashcards }) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isFlipped, setIsFlipped] = useState(false);
-    const [shuffleMode, setShuffleMode] = useState(false);
-    const [reverseMode, setReverseMode] = useState(false); // true: pl->es, false: es->pl
+    const [shuffleMode, setShuffleMode] = useState(true);
+    const [reverseMode, setReverseMode] = useState(true); // true: pl->es, false: es->pl
     const [selectedCategory, setSelectedCategory] = useState("Wszystkie");
 
     const categories = useMemo(() => {
@@ -111,9 +111,6 @@ export default function StudyView({ flashcards }) {
                         {frontExample && (
                             <p className="text-lg md:text-xl text-indigo-300/80 italic">"{frontExample}"</p>
                         )}
-                        <div className="absolute bottom-6 flex items-center gap-2 text-sm text-gray-500">
-                            <Eye className="w-4 h-4" /> Kliknij by odwrócić
-                        </div>
                     </div>
 
                     {/* Back */}

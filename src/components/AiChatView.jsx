@@ -3,7 +3,7 @@ import { Send, UploadCloud, Loader2, Wand2, DatabaseZap, Trash2 } from 'lucide-r
 import { callGeminiApi } from '../utils/gemini';
 import { parseChatVocabulary } from '../utils/parser';
 
-export default function AiChatView({ onAddBatch, messages, setMessages }) {
+export default function AiChatView({ onExtractSuccess, messages, setMessages }) {
     const [input, setInput] = useState('');
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
     const [loading, setLoading] = useState(false);
@@ -59,12 +59,8 @@ Zasady krytyczne:
             if (rawExtraction && rawExtraction.length > 2 && !rawExtraction.toUpperCase().includes("BRAK")) {
                 const parsed = parseChatVocabulary(rawExtraction);
                 if (parsed.length > 0) {
-                    const res = await onAddBatch(parsed);
-                    if (res.success) {
-                        setStatus(`✨ Sukces! Zapisałem ${parsed.length} nowych słówek z przykładami!`);
-                    } else {
-                        setStatus(`❌ Błąd bazy: ${res.error}`);
-                    }
+                    onExtractSuccess(parsed);
+                    setStatus(`✨ Sukces! Zebrano ${parsed.length} fiszek. Zobacz zakładkę Preselekcji!`);
                 } else {
                     setStatus("ℹ️ AI wysłało dane, ale parser ich nie rozpoznał.");
                 }
@@ -92,14 +88,8 @@ Zasady krytyczne:
     const handlePasteRawText = () => {
         const parsed = parseChatVocabulary(input);
         if (parsed.length > 0) {
-            onAddBatch(parsed).then(res => {
-                if (res.success) {
-                    alert(`Dodano z powodzeniem ${parsed.length} fiszek!`);
-                    setInput('');
-                } else {
-                    alert(`Błąd zapisu: ${res.error}`);
-                }
-            });
+            onExtractSuccess(parsed);
+            setInput('');
         } else {
             alert("Nie udało się rozpoznać formatu list (Słówko - Tłumaczenie).");
         }
