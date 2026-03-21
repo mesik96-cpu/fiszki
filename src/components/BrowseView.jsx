@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { Search, Trash2, Edit2, Plus, AlertTriangle, Loader2, Download } from 'lucide-react';
-
+import { Search, Trash2, Edit2, Plus, AlertTriangle, Loader2, Download, Wand2 } from 'lucide-react';
+import { callGeminiApi } from '../utils/gemini';
 
 export default function BrowseView({ flashcards, loading, onDelete, onUpdate, onDeleteAll }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [page, setPage] = useState(0);
+    const [optimizing, setOptimizing] = useState(false);
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
     const itemsPerPage = 50;
 
     const filteredCards = flashcards
@@ -24,6 +26,75 @@ export default function BrowseView({ flashcards, loading, onDelete, onUpdate, on
             </div>
         );
     }
+
+    const handleOptimizeCategories = async () => {
+        if (!apiKey) {
+            alert("Brak klucza API do optymalizacji.");
+            return;
+        }
+
+        const categoryCounts = {};
+        flashcards.forEach(c => {
+            if (c.is_category) return;
+            const cat = c.category || "Bez kategorii";
+            categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+        });
+
+        const catData = Object.entries(categoryCounts).map(([cat, count]) => `"${cat}": ${count} fiszek`).join('\n');
+
+        const prompt = `Twoim zadaniem jest optymalizacja tagów/kategorii fiszek.
+Zasady:
+1. Zwróć TYLKO czysty, poprawny obiekt JSON. Zero wstępów.
+2. Zmapuj małe klastry (poniżej 5 fiszek) i przypisz im nowy, szerszy tag z istniejących silnych grup, lub połącz podobne tematycznie w jeden nowy broad-tag. 
+3. Jeśli dana kategoria jest duża i sensowna (>= 5 fiszek), zignoruj ją, NIE dodawaj jej do JSON w ogóle.
+4. Cel: Zmniejszenie ilości powtarzających się lub malutkich kategorii do tych najpotrzebniejszych.
+5. Format wyjścia: { "Stara wąska nazwa": "Nowa Szersza Nazwa", "Inna mała": "Nowa Szersza Nazwa" }
+
+Dane (Kategoria: liczba fiszek):
+${catData}`;
+
+        try {
+            if (window.confirm("Rozpocząć optymalizację kategorii przez AI? Złączy to małe klastry fiszek w szersze kategorie grupujące.")) {
+                setOptimizing(true);
+                const response = await callGeminiApi(apiKey, "gemini-flash-lite-latest", [{ role: 'user', parts: [{ text: prompt }] }], "Jesteś systemem JSON. Zwracasz wyłącznie obiekt JSON.");
+
+                let mapping = {};
+                try {
+                    const cleanJson = response.replace(/```json/gi, '').replace(/```/g, '').trim();
+                    mapping = JSON.parse(cleanJson);
+                } catch {
+                    alert("AI nie zwróciło poprawnego formatu JSON. Przekroczono limit lub serwer zwrócił inny format.");
+                    return;
+                }
+
+                let updatedCount = 0;
+                let promises = [];
+                for (const oldCat of Object.keys(mapping)) {
+                    const newCat = mapping[oldCat];
+                    if (oldCat === newCat) continue;
+
+                    const cardsToUpdate = flashcards.filter(c => c.category === oldCat || (oldCat === "Bez kategorii" && !c.category));
+                    for (const card of cardsToUpdate) {
+                        promises.push(onUpdate(card.id, { category: newCat }));
+                        updatedCount++;
+                    }
+                }
+
+                if (promises.length > 0) {
+                    await Promise.all(promises);
+                    alert(`Zoptymalizowano! Scalono kategorie dla ${updatedCount} fiszek.`);
+                } else {
+                    alert("AI uznało, że Twoje kategorie są optymalne i nie wymagają łączenia.");
+                }
+            }
+        } catch (error) {
+            console.error(error);
+            alert(`Błąd AI: ${error.message}`);
+        } finally {
+            setOptimizing(false);
+        }
+    };
+
 
     return (
         <div className="flex flex-col h-full gap-6">
@@ -62,6 +133,15 @@ export default function BrowseView({ flashcards, loading, onDelete, onUpdate, on
                     >
                         <Download className="w-4 h-4" />
                         <span className="hidden sm:inline">Backup</span>
+                    </button>
+                    <button
+                        onClick={handleOptimizeCategories}
+                        disabled={optimizing}
+                        className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 bg-indigo-500 hover:bg-indigo-400 text-white font-bold rounded-xl transition-colors shadow-lg shadow-indigo-500/20 disabled:opacity-50"
+                        title="Zoptymalizuj i połącz małe kategorie używając AI"
+                    >
+                        {optimizing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />}
+                        <span className="hidden sm:inline">Optymalizuj AI</span>
                     </button>
                     <button
                         onClick={() => {

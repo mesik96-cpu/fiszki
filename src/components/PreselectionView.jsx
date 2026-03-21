@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { CheckSquare, Trash2, Save, Square } from 'lucide-react';
 
-export default function PreselectionView({ cards, setCards, onSaveToDb, onNavigateTarget }) {
+export default function PreselectionView({ cards, setCards, onSaveToDb, onNavigateTarget, existingFlashcards = [] }) {
     // Trzyma indeksy zaznaczonych fiszek
-    const [selectedIndices, setSelectedIndices] = useState(new Set(cards.map((_, i) => i)));
+    const [selectedIndices, setSelectedIndices] = useState(new Set());
 
     const handleToggle = (index) => {
         const next = new Set(selectedIndices);
@@ -18,12 +18,25 @@ export default function PreselectionView({ cards, setCards, onSaveToDb, onNaviga
     };
 
     const handleSave = async () => {
-        const toSave = cards.filter((_, i) => selectedIndices.has(i));
-        if (toSave.length === 0) return;
+        const toSaveRaw = cards.filter((_, i) => selectedIndices.has(i));
+        if (toSaveRaw.length === 0) return;
+
+        // Anti-duplicate logic
+        const existingWords = new Set(existingFlashcards.map(c => c.word.toLowerCase().trim()));
+        const toSave = toSaveRaw.filter(c => !existingWords.has(c.word.toLowerCase().trim()));
+        const duplicatesCount = toSaveRaw.length - toSave.length;
+
+        if (toSave.length === 0) {
+            alert(`Wszystkie zaznaczone fiszki (${duplicatesCount}) to duplikaty, które już posiadasz w bazie! Spróbuj innych słówek.`);
+            setCards([]); // Czyścimy preselekcję
+            setSelectedIndices(new Set());
+            return;
+        }
 
         const result = await onSaveToDb(toSave);
         if (result.success) {
-            alert(`Pomyślnie zapisano ${toSave.length} fiszek!`);
+            const duplInfo = duplicatesCount > 0 ? `\n(Pominięto automatycznie ${duplicatesCount} duplikatów)` : '';
+            alert(`Pomyślnie zapisano ${toSave.length} fiszek!${duplInfo}`);
             setCards([]); // Czyścimy preselekcję
             setSelectedIndices(new Set());
             onNavigateTarget('browse'); // Wracamy do bazy

@@ -3,7 +3,7 @@ import { Send, UploadCloud, Loader2, Wand2, DatabaseZap, Trash2 } from 'lucide-r
 import { callGeminiApi } from '../utils/gemini';
 import { parseChatVocabulary } from '../utils/parser';
 
-export default function AiChatView({ onExtractSuccess, messages, setMessages }) {
+export default function AiChatView({ onExtractSuccess, messages, setMessages, existingFlashcards = [] }) {
     const [input, setInput] = useState('');
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
     const [loading, setLoading] = useState(false);
@@ -36,16 +36,22 @@ export default function AiChatView({ onExtractSuccess, messages, setMessages }) 
 
             formattedHistory.push({ role: 'user', parts: [{ text: userMessage }] });
 
-            const chatInstruction = "Jesteś ekspertem powołanym do nauki języka hiszpańskiego. Zawsze domyślnie tłumacz słowa podane przez użytkownika na język hiszpański (chyba że użytkownik wyraźnie poprosi o inny język). Poprawiaj błędy, ucz nowych słówek i zachęcaj do nauki po hiszpańsku.";
+            const chatInstruction = "Jesteś ekspertem powołanym do nauki języka hiszpańskiego. Zawsze domyślnie tłumacz słowa podane przez użytkownika na język hiszpański (chyba że użytkownik wyraźnie poprosi o inny język). ZAKAZ UŻYWANIA JAKICHKOLWIEK INNYCH JĘZYKÓW POZA HISZPAŃSKIM ORAZ POLSKIM (np. absolutnie zero włoskiego, francuskiego itp.). Poprawiaj błędy, ucz nowych słówek i zachęcaj do nauki po hiszpańsku.";
             const replyText = await callGeminiApi(apiKey, "gemini-flash-lite-latest", formattedHistory, chatInstruction);
             setMessages(p => [...p, { role: 'model', content: replyText }]);
 
             // 2. Extraction in background
+            const uniqueCategories = [...new Set(existingFlashcards.map(c => c.category).filter(c => c && c !== 'Bez kategorii'))].slice(0, 30);
+            const categoriesStr = uniqueCategories.length > 0 ? `ISTNIEJĄCE KATEGORIE BAZY (Dąż bezwględnie do ich mądrego ponownego użycia zamiast tworzenia nowych!): ${uniqueCategories.join(', ')}` : '';
+
             const instruction = `Jesteś systemem DATA EXTRACTION do fiszek. Wyodrębnij słówka.
 Format (KAŻDA LINIA): KATEGORIA | SŁÓWKO | TŁUMACZENIE | PRZYKŁAD | TŁUMACZENIE PRZYKŁADU
 
 Zasady krytyczne:
 - JĘZYK DOMYŚLNY TO HISZPAŃSKI. Tłumacz zawsze na hiszpański, chyba że w rozmowie była mowa o innym.
+- ZAKAZ UŻYWANIA JAKICHKOLWIEK INNYCH JĘZYKÓW (np. włoskiego, francuskiego itp.) - TYLKO HISZPAŃSKI I POLSKI.
+- ${categoriesStr ? categoriesStr : 'Grupuj wiedzę w broad kategorie (np. Podstawy, Podróż, Jedzenie).'}
+- NIE TWORZ WĄSKICH KATEGORII DLA POJEDYNCZYCH SŁÓWEK. Zawsze używaj szerokich, ogólnych działów.
 - PRZYKŁADY SĄ OBOWIĄZKOWE. Jeśli w tekście nie ma przykładu, WYMYŚL krótki, naturalny przykład w obu językach.
 - Zwróć tylko surowy tekst fiszek.
 - Jeśli brak słówek, zwróć: BRAK.`;

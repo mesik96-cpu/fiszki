@@ -8,7 +8,7 @@ import { useFlashcards } from './hooks/useFlashcards';
 import { checkAppwriteConnection } from './utils/diagnostics';
 
 function App() {
-  const [activeTab, setActiveTab] = useState('browse');
+  const [activeTab, setActiveTab] = useState('study');
   const [preselectionCards, setPreselectionCards] = useState([]);
   const [chatMessages, setChatMessages] = useState([
     { role: 'model', content: "¡Hola! Jestem Twoim nauczycielem hiszpańskiego w chmurze! Możesz ze mną po prostu porozmawiać, a ja wyłapię z naszej rozmowy słówka i użyję magii AI, by zapisać fiszki do bazy." }
@@ -106,6 +106,7 @@ function App() {
             setCards={setPreselectionCards}
             onSaveToDb={addMultipleFlashcards}
             onNavigateTarget={(tab) => setActiveTab(tab)}
+            existingFlashcards={flashcards}
           />
         )}
         {activeTab === 'ai' && (
@@ -116,6 +117,7 @@ function App() {
             }}
             messages={chatMessages}
             setMessages={setChatMessages}
+            existingFlashcards={flashcards}
           />
         )}
       </main>
