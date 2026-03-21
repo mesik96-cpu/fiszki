@@ -33,8 +33,40 @@ export default function BrowseView({ flashcards, loading, onDelete, onUpdate, on
             return;
         }
 
+        setOptimizing(true);
+        let duplicatesCount = 0;
+        const seenWords = new Set();
+        const uniqueFlashcards = [];
+        const duplicatesToDelete = [];
+
+        for (const card of flashcards) {
+            const normalizedWord = card.word.toLowerCase().trim();
+            if (seenWords.has(normalizedWord)) {
+                duplicatesToDelete.push(card.id);
+                duplicatesCount++;
+            } else {
+                seenWords.add(normalizedWord);
+                uniqueFlashcards.push(card);
+            }
+        }
+
+        if (duplicatesCount > 0) {
+            if (!window.confirm(`Wykryto ${duplicatesCount} duplikatów w bazie! Czy usunąć je bezpowrotnie, a potem zoptymalizować kategorie z AI?`)) {
+                setOptimizing(false);
+                return;
+            }
+            for (const id of duplicatesToDelete) {
+                await onDelete(id);
+            }
+        } else {
+            if (!window.confirm("Baza jest czysta (0 duplikatów). Rozpocząć optymalizację kategorii przez AI (łączenie pojęć)?")) {
+                setOptimizing(false);
+                return;
+            }
+        }
+
         const categoryCounts = {};
-        flashcards.forEach(c => {
+        uniqueFlashcards.forEach(c => {
             if (c.is_category) return;
             const cat = c.category || "Bez kategorii";
             categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
@@ -54,38 +86,37 @@ Dane (Kategoria: liczba fiszek):
 ${catData}`;
 
         try {
-            if (window.confirm("Rozpocząć optymalizację kategorii przez AI? Złączy to małe klastry fiszek w szersze kategorie grupujące.")) {
-                setOptimizing(true);
-                const response = await callGeminiApi(apiKey, "gemini-flash-lite-latest", [{ role: 'user', parts: [{ text: prompt }] }], "Jesteś systemem JSON. Zwracasz wyłącznie obiekt JSON.");
+            const response = await callGeminiApi(apiKey, "gemini-flash-lite-latest", [{ role: 'user', parts: [{ text: prompt }] }], "Jesteś systemem JSON. Zwracasz wyłącznie obiekt JSON.");
 
-                let mapping = {};
-                try {
-                    const cleanJson = response.replace(/```json/gi, '').replace(/```/g, '').trim();
-                    mapping = JSON.parse(cleanJson);
-                } catch {
-                    alert("AI nie zwróciło poprawnego formatu JSON. Przekroczono limit lub serwer zwrócił inny format.");
-                    return;
+            let mapping = {};
+            try {
+                const cleanJson = response.replace(/```json/gi, '').replace(/```/g, '').trim();
+                mapping = JSON.parse(cleanJson);
+            } catch {
+                alert("AI nie zwróciło poprawnego formatu JSON. Przekroczono limit lub serwer zwrócił inny format.");
+                return;
+            }
+
+            let updatedCount = 0;
+            let promises = [];
+            for (const oldCat of Object.keys(mapping)) {
+                const newCat = mapping[oldCat];
+                if (oldCat === newCat) continue;
+
+                const cardsToUpdate = uniqueFlashcards.filter(c => c.category === oldCat || (oldCat === "Bez kategorii" && !c.category));
+                for (const card of cardsToUpdate) {
+                    promises.push(onUpdate(card.id, { category: newCat }));
+                    updatedCount++;
                 }
+            }
 
-                let updatedCount = 0;
-                let promises = [];
-                for (const oldCat of Object.keys(mapping)) {
-                    const newCat = mapping[oldCat];
-                    if (oldCat === newCat) continue;
-
-                    const cardsToUpdate = flashcards.filter(c => c.category === oldCat || (oldCat === "Bez kategorii" && !c.category));
-                    for (const card of cardsToUpdate) {
-                        promises.push(onUpdate(card.id, { category: newCat }));
-                        updatedCount++;
-                    }
-                }
-
-                if (promises.length > 0) {
-                    await Promise.all(promises);
-                    alert(`Zoptymalizowano! Scalono kategorie dla ${updatedCount} fiszek.`);
-                } else {
-                    alert("AI uznało, że Twoje kategorie są optymalne i nie wymagają łączenia.");
-                }
+            if (promises.length > 0) {
+                await Promise.all(promises);
+                const duplText = duplicatesCount > 0 ? ` Usunięto również ${duplicatesCount} duplikatów.` : '';
+                alert(`Zoptymalizowano! Scalono kategorie dla ${updatedCount} fiszek.${duplText}`);
+            } else {
+                const duplText = duplicatesCount > 0 ? ` Usunięto jedynie ${duplicatesCount} duplikatów.` : '';
+                alert(`AI uznało, że Twoje kategorie są optymalne.${duplText}`);
             }
         } catch (error) {
             console.error(error);
